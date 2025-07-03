@@ -141,7 +141,7 @@ The API server will be available at `http://localhost:3000`.
     ```
 4.  **Run Database Migrations:**
     ```bash
-    migrate -database 'mysql://your_user:your_password@tcp(127.0.0.1:3306)/your_db_name' -path database/migrations up
+    migrate -database 'mysql://your_user:your_password@tcp(127.0.0.1:41181)/venturo-golang-core' -path database/migrations up
     ```
 5.  **Run the Server:**
     ```bash
