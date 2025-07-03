@@ -33,11 +33,13 @@ func registerRoutes(app *fiber.App, db *gorm.DB, conf *configs.Config, wg *sync.
 	authService := service.NewAuthService(db, conf)
 	userService := service.NewUserService(db, wg)
 	postService := service.NewPostService(db)
+	transactionService := service.NewTransactionService(db)
 
 	// --- Setup handlers ---
 	authHandler := http.NewAuthHandler(authService)
 	userHandler := http.NewUserHandler(userService)
 	postHandler := http.NewPostHandler(postService)
+	transactionHandler := http.NewTransactionHandler(transactionService)
 
 	// --- Auth routes ---
 	api.Post("/register", authHandler.Register)
@@ -47,11 +49,15 @@ func registerRoutes(app *fiber.App, db *gorm.DB, conf *configs.Config, wg *sync.
 	api.Get("/profile", authMiddleware, userHandler.GetProfile)
 	api.Put("/profile", authMiddleware, userHandler.UpdateProfile)
 
-	// --- Register Post Routes ---
+	// --- Post routes ---
 	postRoutes := api.Group("/posts")
 	postRoutes.Get("/", postHandler.GetAllPosts)                      // Public
 	postRoutes.Get("/:id", postHandler.GetPostByID)                   // Public
 	postRoutes.Post("/", authMiddleware, postHandler.CreatePost)      // Protected
 	postRoutes.Put("/:id", authMiddleware, postHandler.UpdatePost)    // Protected
 	postRoutes.Delete("/:id", authMiddleware, postHandler.DeletePost) // Protected
+
+	// --- Transaction routes ---
+	transactionRoutes := api.Group("/transactions")
+	transactionRoutes.Post("/", authMiddleware, transactionHandler.CreateTransaction) // Protected
 }

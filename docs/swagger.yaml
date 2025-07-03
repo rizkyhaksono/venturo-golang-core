@@ -10,6 +10,39 @@ definitions:
     required:
     - title
     type: object
+  http.CreateTransactionPayload:
+    properties:
+      items:
+        items:
+          properties:
+            category:
+              maximum: 3
+              minimum: 1
+              type: integer
+            price:
+              minimum: 0
+              type: integer
+            product_id:
+              type: string
+            product_name:
+              type: string
+            qty:
+              minimum: 1
+              type: integer
+          required:
+          - category
+          - price
+          - product_id
+          - product_name
+          - qty
+          type: object
+        minItems: 1
+        type: array
+      note:
+        type: string
+    required:
+    - items
+    type: object
   http.LoginPayload:
     properties:
       email:
@@ -49,6 +82,68 @@ definitions:
       updated_at:
         type: string
       user_id:
+        type: string
+    type: object
+  model.ProductCategory:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-comments:
+      _: Start with 0, but we'll ignore it
+    x-enum-varnames:
+    - _
+    - Goods
+    - Service
+    - Subscription
+  model.Transaction:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      invoiceCode:
+        type: string
+      is_paid:
+        type: boolean
+      note:
+        type: string
+      total:
+        type: integer
+      transactionDetails:
+        items:
+          $ref: '#/definitions/model.TransactionDetail'
+        type: array
+      updatedAt:
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/model.User'
+        description: Relationships
+      userID:
+        type: string
+    type: object
+  model.TransactionDetail:
+    properties:
+      category:
+        $ref: '#/definitions/model.ProductCategory'
+      createdAt:
+        type: string
+      id:
+        type: string
+      price:
+        type: integer
+      productID:
+        type: string
+      productName:
+        type: string
+      qty:
+        type: integer
+      transactionID:
+        type: string
+      updatedAt:
         type: string
     type: object
   model.User:
@@ -364,6 +459,44 @@ paths:
       summary: Register a new user
       tags:
       - Authentication
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: Creates a transaction with multiple detail items for the authenticated
+        user.
+      parameters:
+      - description: Transaction Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateTransactionPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created transaction
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ApiResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Transaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ApiResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ApiResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new transaction
+      tags:
+      - Transactions
 securityDefinitions:
   ApiKeyAuth:
     description: Type "Bearer" followed by a space and a JWT.

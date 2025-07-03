@@ -447,6 +447,69 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/transactions": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Creates a transaction with multiple detail items for the authenticated user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Create a new transaction",
+                "parameters": [
+                    {
+                        "description": "Transaction Payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/http.CreateTransactionPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully created transaction",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.ApiResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Transaction"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApiResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/response.ApiResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -462,6 +525,52 @@ const docTemplate = `{
                 "title": {
                     "type": "string",
                     "minLength": 5
+                }
+            }
+        },
+        "http.CreateTransactionPayload": {
+            "type": "object",
+            "required": [
+                "items"
+            ],
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "category",
+                            "price",
+                            "product_id",
+                            "product_name",
+                            "qty"
+                        ],
+                        "properties": {
+                            "category": {
+                                "type": "integer",
+                                "maximum": 3,
+                                "minimum": 1
+                            },
+                            "price": {
+                                "type": "integer",
+                                "minimum": 0
+                            },
+                            "product_id": {
+                                "type": "string"
+                            },
+                            "product_name": {
+                                "type": "string"
+                            },
+                            "qty": {
+                                "type": "integer",
+                                "minimum": 1
+                            }
+                        }
+                    }
+                },
+                "note": {
+                    "type": "string"
                 }
             }
         },
@@ -524,6 +633,99 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ProductCategory": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3
+            ],
+            "x-enum-comments": {
+                "_": "Start with 0, but we'll ignore it"
+            },
+            "x-enum-varnames": [
+                "_",
+                "Goods",
+                "Service",
+                "Subscription"
+            ]
+        },
+        "model.Transaction": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "invoiceCode": {
+                    "type": "string"
+                },
+                "is_paid": {
+                    "type": "boolean"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "transactionDetails": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.TransactionDetail"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user": {
+                    "description": "Relationships",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    ]
+                },
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.TransactionDetail": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "$ref": "#/definitions/model.ProductCategory"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "productID": {
+                    "type": "string"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "qty": {
+                    "type": "integer"
+                },
+                "transactionID": {
+                    "type": "string"
+                },
+                "updatedAt": {
                     "type": "string"
                 }
             }
