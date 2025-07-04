@@ -16,6 +16,13 @@ A robust, slim, and well-organized backend codebase core using Golang. This proj
 
 -----
 
+## Answer for Learning Modules
+These answer are on the [`answers/`](answers/) folder.
+
+- [Module 1 B: Core Go Concepts - Challenges (with Starters)](answers/module-1)
+- [Module 2 A: Concurrency & Advanced Reporting](answers/module-2-a)
+
+
 ## ✨ Key Features & Concepts
 
 This codebase serves as a training tool and demonstrates several important backend concepts:
