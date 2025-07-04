@@ -4,6 +4,7 @@ A robust, slim, and well-organized backend codebase core using Golang. This proj
 
 ## Table of Contents
 
+  - [📚 Learning Modules](#learning-modules)  
   - [✨ Key Features & Concepts](https://www.google.com/search?q=%23-key-features--concepts)
   - [🏗️ Architectural Patterns](https://www.google.com/search?q=%23%EF%B8%8F-architectural-patterns)
   - [📂 Codebase Structure](https://www.google.com/search?q=%23-codebase-structure)
@@ -19,8 +20,9 @@ A robust, slim, and well-organized backend codebase core using Golang. This proj
 ## Answer for Learning Modules
 These answer are on the [`answers/`](answers/) folder.
 
-- [Module 1 B: Core Go Concepts - Challenges (with Starters)](answers/module-1)
-- [Module 2 A: Concurrency & Advanced Reporting](answers/module-2-a)
+- [Module 1 B: Core Go Concepts - Challenges (with Starters)](answers/module-1-b)
+- [Module 2 B: Concurrency & Advanced Reporting](answers/module-2-b)
+- [Module 3: Interfaces & Architecture - Challenges](answers/module-3-b)
 
 
 ## ✨ Key Features & Concepts
