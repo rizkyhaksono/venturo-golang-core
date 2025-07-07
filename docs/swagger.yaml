@@ -497,35 +497,6 @@ paths:
       summary: Create a new transaction
       tags:
       - Transactions
-  /transactions/{id}/pay:
-    post:
-      description: Marks a transaction as paid and triggers a background report update.
-      parameters:
-      - description: Transaction ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully paid
-          schema:
-            $ref: '#/definitions/response.ApiResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/response.ApiResponse'
-        "404":
-          description: Transaction not found
-          schema:
-            $ref: '#/definitions/response.ApiResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Pay for a Transaction
-      tags:
-      - Transactions
 securityDefinitions:
   ApiKeyAuth:
     description: Type "Bearer" followed by a space and a JWT.
