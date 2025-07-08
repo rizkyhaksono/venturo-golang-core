@@ -84,6 +84,25 @@ definitions:
       user_id:
         type: string
     type: object
+  model.Product:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      imageStatus:
+        type: string
+      imageURL:
+        type: string
+      name:
+        type: string
+      price:
+        type: integer
+      stock:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
   model.ProductCategory:
     enum:
     - 0
@@ -405,6 +424,60 @@ paths:
       summary: Update a post
       tags:
       - Posts
+  /products:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Creates a new product with the provided details.
+      parameters:
+      - description: Product Name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: Product Price
+        in: formData
+        name: price
+        required: true
+        type: integer
+      - description: Product Stock
+        in: formData
+        name: stock
+        required: true
+        type: integer
+      - description: Product Image
+        in: formData
+        name: image
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created product
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.ApiResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Product'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ApiResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ApiResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ApiResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a new product
+      tags:
+      - Products
   /profile:
     get:
       description: Retrieves the profile of the currently authenticated user.

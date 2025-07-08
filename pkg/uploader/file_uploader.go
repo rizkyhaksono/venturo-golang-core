@@ -47,7 +47,7 @@ func (u *FileUploader) UploadAsync(
 	// --- Step 2: Upload to Cloud ---
 	// In a real app, you would read the local file's contents to upload.
 	// We pass the header for placeholder simplicity.
-	if _, err := u.storageAdapter.Upload(context.Background(), file); err != nil {
+	if _, err := u.storageAdapter.Upload(context.Background(), file, objectName); err != nil {
 		slog.Error("Error uploading to cloud", "file", objectName, "error", err)
 		return // Don't continue if cloud upload fails
 	}
