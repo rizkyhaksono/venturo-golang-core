@@ -1,0 +1,11 @@
+CREATE TABLE transaction_reports (
+  id TINYINT UNSIGNED PRIMARY KEY,
+  total_revenue BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  total_paid_transactions BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  total_products_sold BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  total_unique_customers BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  category_summary JSON,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+INSERT INTO transaction_reports (id) VALUES (1);

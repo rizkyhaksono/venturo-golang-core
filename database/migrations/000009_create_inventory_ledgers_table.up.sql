@@ -1,0 +1,12 @@
+CREATE TABLE inventory_ledgers (
+  id CHAR(36) PRIMARY KEY,
+  item_id CHAR(36) NOT NULL,
+  outlet_id CHAR(36) NOT NULL,
+  transaction_id CHAR(36),
+  quantity_change BIGINT,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (item_id) REFERENCES products(id) ON DELETE CASCADE,
+  FOREIGN KEY (outlet_id) REFERENCES outlets(id) ON DELETE CASCADE,
+  FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL
+);
