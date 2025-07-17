@@ -7,6 +7,7 @@ import (
 	"venturo-core/pkg/validator"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 )
 
 // AuthHandler handles authentication-related HTTP requests.
@@ -67,7 +68,7 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 
 // Login is the handler for the user login endpoint.
 // @Summary      Log in a user
-// @Description  Authenticates a user and returns a JWT token.
+// @Description  Authenticates a user and returns access and refresh tokens.
 // @Tags         Authentication
 // @Accept       json
 // @Produce      json
@@ -83,10 +84,70 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 		return response.Error(c, fiber.StatusBadRequest, errors.New("cannot parse JSON"))
 	}
 
-	token, err := h.authService.Login(c.Context(), payload.Email, payload.Password)
+	tokens, err := h.authService.Login(c.Context(), payload.Email, payload.Password)
 	if err != nil {
 		return response.Error(c, fiber.StatusUnauthorized, err)
 	}
 
-	return response.Success(c, fiber.StatusOK, fiber.Map{"token": token})
+	return response.Success(c, fiber.StatusOK, tokens)
+}
+
+// RefreshTokenPayload defines the expected JSON for token refresh.
+type RefreshTokenPayload struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
+}
+
+// RefreshToken is the handler for refreshing access tokens.
+// @Summary      Refresh access token
+// @Description  Uses a refresh token to generate a new access token.
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        payload  body      RefreshTokenPayload true  "Refresh Token Payload"
+// @Success      200      {object}  response.ApiResponse "Successfully refreshed token"
+// @Failure      400      {object}  response.ApiResponse "Bad Request"
+// @Failure      401      {object}  response.ApiResponse "Unauthorized - Invalid refresh token"
+// @Router       /refresh [post]
+func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
+	payload := new(RefreshTokenPayload)
+
+	if err := c.BodyParser(payload); err != nil {
+		return response.Error(c, fiber.StatusBadRequest, errors.New("cannot parse JSON"))
+	}
+
+	if errs := validator.ValidateStruct(payload); errs != nil {
+		return response.ValidationError(c, errs)
+	}
+
+	tokens, err := h.authService.RefreshToken(c.Context(), payload.RefreshToken)
+	if err != nil {
+		return response.Error(c, fiber.StatusUnauthorized, err)
+	}
+
+	return response.Success(c, fiber.StatusOK, tokens)
+}
+
+// Logout is the handler for user logout.
+// @Summary      Log out a user
+// @Description  Invalidates the user's refresh token, effectively logging them out.
+// @Tags         Authentication
+// @Accept       json
+// @Produce      json
+// @Param        Authorization header string true "Bearer JWT token"
+// @Success      200      {object}  response.ApiResponse "Successfully logged out"
+// @Failure      401      {object}  response.ApiResponse "Unauthorized"
+// @Router       /logout [post]
+func (h *AuthHandler) Logout(c *fiber.Ctx) error {
+	// Get user ID from the JWT middleware
+	userID, ok := c.Locals("current_user_id").(uuid.UUID)
+	if !ok {
+		return response.Error(c, fiber.StatusUnauthorized, errors.New("unauthorized"))
+	}
+
+	err := h.authService.Logout(c.Context(), userID)
+	if err != nil {
+		return response.Error(c, fiber.StatusInternalServerError, err)
+	}
+
+	return response.Success(c, fiber.StatusOK, fiber.Map{"message": "Successfully logged out"})
 }
