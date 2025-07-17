@@ -2,6 +2,7 @@ package http
 
 import (
 	"errors"
+	"strings"
 	"venturo-core/internal/model"
 	"venturo-core/internal/service"
 	"venturo-core/pkg/response"
@@ -21,7 +22,8 @@ func NewTransactionHandler(s *service.TransactionService) *TransactionHandler {
 
 // generateInvoiceCode generates a unique invoice code.
 type CreateTransactionPayload struct {
-	Items []struct {
+	OutletID uuid.UUID `json:"outlet_id" validate:"required"`
+	Items    []struct {
 		ProductID   uuid.UUID `json:"product_id" validate:"required"`
 		ProductName string    `json:"product_name" validate:"required"`
 		Category    uint8     `json:"category" validate:"required,min=1,max=3"`
@@ -61,8 +63,9 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 
 	// Map payload to service input
 	serviceInput := service.CreateTransactionInput{
-		UserID: userID,
-		Note:   payload.Note,
+		UserID:   userID,
+		OutletID: payload.OutletID,
+		Note:     payload.Note,
 	}
 
 	for _, item := range payload.Items {
@@ -87,4 +90,34 @@ func (h *TransactionHandler) CreateTransaction(c *fiber.Ctx) error {
 	}
 
 	return response.Success(c, fiber.StatusCreated, transaction)
+}
+
+// MarkAsPaid handles the request to mark a transaction as paid.
+// @Summary      Pay for a Transaction
+// @Description  Marks a transaction as paid and triggers a background report update.
+// @Tags         Transactions
+// @Produce      json
+// @Security     ApiKeyAuth
+// @Param        id   path      string  true  "Transaction ID"
+// @Success      200  {object}  response.ApiResponse "Successfully paid"
+// @Failure      401  {object}  response.ApiResponse "Unauthorized"
+// @Failure      404  {object}  response.ApiResponse "Transaction not found"
+// @Router       /transactions/{id}/pay [post]
+func (h *TransactionHandler) MarkAsPaid(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	transactionID, err := uuid.Parse(idParam)
+	if err != nil {
+		return response.Error(c, fiber.StatusBadRequest, errors.New("invalid ID format"))
+	}
+
+	err = h.transactionService.MarkAsPaid(c.Context(), transactionID)
+	if err != nil {
+		// Differentiate between not found and other errors
+		if strings.Contains(err.Error(), "not found") {
+			return response.Error(c, fiber.StatusNotFound, err)
+		}
+		return response.Error(c, fiber.StatusInternalServerError, err)
+	}
+
+	return response.Success(c, fiber.StatusOK, fiber.Map{"message": "Transaction marked as paid. Report is updating."})
 }

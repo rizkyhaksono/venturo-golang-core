@@ -12,6 +12,7 @@ type Transaction struct {
 	ID          uuid.UUID `gorm:"type:char(36);primary_key"`
 	UserID      uuid.UUID `gorm:"type:char(36);not null"`
 	InvoiceCode string    `gorm:"size:20;not null;unique"`
+	OutletID    uuid.UUID `gorm:"type:char(36);not null"`
 	Total       int64     `gorm:"not null"`
 	IsPaid      *bool     `gorm:"not null;default:false" json:"is_paid"`
 	Note        string    `gorm:"type:text"`
@@ -21,6 +22,7 @@ type Transaction struct {
 	// Relationships
 	User               User                `gorm:"foreignKey:UserID"`
 	TransactionDetails []TransactionDetail `gorm:"foreignKey:TransactionID"`
+	Outlet             Outlet              `gorm:"foreignKey:OutletID"`
 }
 
 // BeforeCreate is a GORM hook.
